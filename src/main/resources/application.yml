@@ -1,0 +1,23 @@
+server:
+  port: 8081
+spring:
+  kafka:
+    security:
+      protocol: SASL_PLAINTEXT
+    bootstrap-servers: localhost:9092
+    properties:
+      apicurio.registry.url: http://localhost:8083/apis/registry/v2
+      apicurio.registry.auto-register: true
+      sasl:
+        mechanism: OAUTHBEARER
+        jaas:
+          config: |
+            org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
+            oauth.token.endpoint.uri="http://keycloak:8080/auth/realms/kafka-authz/protocol/openid-connect/token"
+            oauth.client.id="team-a-client" oauth.client.secret="team-a-client-secret";
+        login:
+          callback:
+            handler:
+              class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
+    producer:
+      value-serializer: io.apicurio.registry.serde.avro.AvroKafkaSerializer
